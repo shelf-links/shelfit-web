@@ -17,14 +17,21 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
 
   if (!collection) {
     return (
-      <main style={{ fontFamily: 'sans-serif', padding: '40px 24px', maxWidth: 600, margin: '0 auto' }}>
-        <h1 style={{ fontSize: 24, fontWeight: 500 }}>Collection not found</h1>
-        <p style={{ color: '#888' }}>This collection may be private or does not exist.</p>
-      </main>
+      <>
+        <style>{`
+          body { background-color: #ffffff; color: #1a1a1a; margin: 0; }
+          @media (prefers-color-scheme: dark) {
+            body { background-color: #1a1a1a; color: #f5f5f0; }
+          }
+        `}</style>
+        <main style={{ fontFamily: 'sans-serif', padding: '40px 24px', maxWidth: 600, margin: '0 auto' }}>
+          <h1 style={{ fontSize: 24, fontWeight: 500 }}>Collection not found</h1>
+          <p style={{ color: '#888' }}>This collection may be private or does not exist.</p>
+        </main>
+      </>
     );
   }
 
-  // Fetch curator username
   const { data: curator } = await supabase
     .from('users')
     .select('username, display_name, email')
@@ -45,58 +52,78 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
   const linkCount = items?.length ?? 0;
 
   return (
-    <main style={{ fontFamily: 'sans-serif', padding: '40px 24px', maxWidth: 600, margin: '0 auto' }}>
-      <div style={{ marginBottom: 32 }}>
-        <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-          <div style={{ width: 32, height: 8, borderRadius: 4, background: '#D4C4A0' }} />
-          <div style={{ width: 32, height: 8, borderRadius: 4, background: '#A8C4B4' }} />
-          <div style={{ width: 32, height: 8, borderRadius: 4, background: '#A0B8D0' }} />
+    <>
+      <style>{`
+        body { background-color: #ffffff; color: #1a1a1a; margin: 0; }
+        .card {
+          border: 0.5px solid #e0e0e0;
+          border-radius: 12px;
+          padding: 14px 16px;
+          background: #ffffff;
+          overflow: hidden;
+          word-break: break-word;
+          text-decoration: none;
+          display: block;
+          margin-bottom: 12px;
+        }
+        .card:hover { opacity: 0.85; }
+        .card-category { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .card-title { font-size: 15px; font-weight: 500; color: #1a1a1a; margin-bottom: 4px; }
+        .card-summary { font-size: 13px; color: #888; line-height: 1.5; }
+        .card-url { font-size: 11px; color: #A0B8D0; margin-top: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .curator { color: #1a1a1a; }
+        .meta { color: #888; }
+        .footer { margin-top: 48px; padding-top: 24px; border-top: 0.5px solid #e0e0e0; text-align: center; }
+        .footer p { font-size: 12px; color: #888; }
+        @media (prefers-color-scheme: dark) {
+          body { background-color: #1a1a1a; color: #f5f5f0; }
+          .card { background: #2a2a2a; border-color: #333; }
+          .card-title { color: #f5f5f0; }
+          .card-summary { color: #999; }
+          .card-category { color: #666; }
+          .curator { color: #f5f5f0; }
+          .meta { color: #666; }
+          .footer { border-top-color: #333; }
+          .footer p { color: #666; }
+        }
+      `}</style>
+      <main style={{ fontFamily: 'sans-serif', padding: '40px 24px', maxWidth: 600, margin: '0 auto' }}>
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+            <div style={{ width: 32, height: 8, borderRadius: 4, background: '#D4C4A0' }} />
+            <div style={{ width: 32, height: 8, borderRadius: 4, background: '#A8C4B4' }} />
+            <div style={{ width: 32, height: 8, borderRadius: 4, background: '#A0B8D0' }} />
+          </div>
+          <h1 style={{ fontSize: 28, fontWeight: 500, margin: '0 0 4px', letterSpacing: -0.5 }}>
+            {collection.name}
+          </h1>
+          <p className="meta" style={{ fontSize: 13, margin: '0 0 4px' }}>
+            Curated by <strong className="curator">{curatorHandle}</strong>
+          </p>
+          <p className="meta" style={{ fontSize: 13, margin: 0 }}>
+            {linkCount} link{linkCount !== 1 ? 's' : ''}
+          </p>
         </div>
-        <h1 style={{ fontSize: 28, fontWeight: 500, margin: '0 0 4px', letterSpacing: -0.5 }}>
-          {collection.name}
-        </h1>
-        <p style={{ color: '#888', fontSize: 13, margin: '0 0 4px' }}>
-          Curated by <strong style={{ color: '#1A1A1A' }}>{curatorHandle}</strong>
-        </p>
-        <p style={{ color: '#888', fontSize: 13, margin: 0 }}>
-          {linkCount} link{linkCount !== 1 ? 's' : ''}
-        </p>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {items?.map((item: any) => {
-          const link = item.saves?.links;
-          if (!link) return null;
-          return (
-            <a key={item.id} href={link.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-              <div style={{
-                border: '0.5px solid #E0E0E0',
-                borderRadius: 12,
-                padding: '14px 16px',
-                background: '#fff',
-                cursor: 'pointer',
-                overflow: 'hidden',
-                wordBreak: 'break-word',
-              }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>
-                  {link.ai_category || 'other'}
-                </div>
-                <div style={{ fontSize: 15, fontWeight: 500, color: '#1A1A1A', marginBottom: 4 }}>
-                  {link.title}
-                </div>
-                <div style={{ fontSize: 13, color: '#888', lineHeight: 1.5 }}>
-                  {link.ai_summary}
-                </div>
-                <div style={{ fontSize: 11, color: '#A0B8D0', marginTop: 8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {link.url}
-                </div>
-              </div>
-            </a>
-          );
-        })}
-      </div>
-      <div style={{ marginTop: 48, paddingTop: 24, borderTop: '0.5px solid #E0E0E0', textAlign: 'center' }}>
-        <p style={{ fontSize: 12, color: '#888' }}>saved with <strong>ShelfIt</strong></p>
-      </div>
-    </main>
+
+        <div>
+          {items?.map((item: any) => {
+            const link = item.saves?.links;
+            if (!link) return null;
+            return (
+              <a key={item.id} href={link.url} target="_blank" rel="noopener noreferrer" className="card">
+                <div className="card-category">{link.ai_category || 'other'}</div>
+                <div className="card-title">{link.title}</div>
+                {link.ai_summary && <div className="card-summary">{link.ai_summary}</div>}
+                <div className="card-url">{link.url}</div>
+              </a>
+            );
+          })}
+        </div>
+
+        <div className="footer">
+          <p>saved with <strong>ShelfIt</strong></p>
+        </div>
+      </main>
+    </>
   );
 }
