@@ -24,14 +24,18 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
     );
   }
 
-  // Fetch curator display name
+  // Fetch curator username
   const { data: curator } = await supabase
     .from('users')
-    .select('display_name, email')
+    .select('username, display_name, email')
     .eq('id', collection.user_id)
     .single();
 
-  const curatorName = curator?.display_name || curator?.email?.split('@')[0] || 'ShelfIt user';
+  const curatorHandle = curator?.username
+    ? `@${curator.username}`
+    : curator?.display_name
+    || curator?.email?.split('@')[0]
+    || 'ShelfIt user';
 
   const { data: items } = await supabase
     .from('collection_saves')
@@ -52,7 +56,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
           {collection.name}
         </h1>
         <p style={{ color: '#888', fontSize: 13, margin: '0 0 4px' }}>
-          Curated by <strong style={{ color: '#1A1A1A' }}>{curatorName}</strong>
+          Curated by <strong style={{ color: '#1A1A1A' }}>{curatorHandle}</strong>
         </p>
         <p style={{ color: '#888', fontSize: 13, margin: 0 }}>
           {linkCount} link{linkCount !== 1 ? 's' : ''}
@@ -62,18 +66,17 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
         {items?.map((item: any) => {
           const link = item.saves?.links;
           if (!link) return null;
-          const cardStyle = {
-            border: '0.5px solid #E0E0E0',
-            borderRadius: 12,
-            padding: '14px 16px',
-            background: '#fff',
-            cursor: 'pointer',
-            overflow: 'hidden',
-            wordBreak: 'break-word' as const,
-          };
           return (
             <a key={item.id} href={link.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-              <div style={cardStyle}>
+              <div style={{
+                border: '0.5px solid #E0E0E0',
+                borderRadius: 12,
+                padding: '14px 16px',
+                background: '#fff',
+                cursor: 'pointer',
+                overflow: 'hidden',
+                wordBreak: 'break-word',
+              }}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>
                   {link.ai_category || 'other'}
                 </div>
