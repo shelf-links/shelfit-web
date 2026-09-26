@@ -37,7 +37,7 @@ export default function Home() {
         no more scrolling through a mess of saved posts and bookmarks.
       </p>
 
-      
+      <a
         href="https://apps.apple.com/app/id6788626232"
         style={{
           backgroundColor: '#181C14',
