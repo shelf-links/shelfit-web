@@ -1,0 +1,373 @@
+/* ShelfIt web shelf. Colours come from the app (platformHelper.ts). Greys used for
+   text are a little darker (light mode) or lighter (dark mode) than the app's so
+   small text stays readable on a screen. */
+
+.page {
+  --bg: #ECEEE8;
+  --card: #FFFFFF;
+  --text: #181C14;
+  --muted: #5F645A;
+  --border: #D4D8D0;
+  --action-bg: #181C14;
+  --action-text: #FFFFFF;
+  --focus: #3A86FF;
+  --danger: #B42318;
+  --cat: #555555;
+  --cat-ink: #FFFFFF;
+
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  .page {
+    --bg: #0E1420;
+    --card: #141E2C;
+    --text: #E8EAF0;
+    --muted: #9AA4B5;
+    --border: #2A3548;
+    --action-bg: #FF7058;
+    --action-text: #0E1420;
+    --focus: #58A8E8;
+    --danger: #FF8A7A;
+    --cat: #A0A8B0;
+    --cat-ink: #0E1420;
+  }
+}
+
+/* The browser adds a small margin around the page; remove it on this screen only. */
+body:has(.page) {
+  margin: 0;
+}
+
+.wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 20px 16px 72px;
+}
+
+.page * { box-sizing: border-box; }
+.page h1, .page h2, .page p { margin: 0; }
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- top bar ---------- */
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wordmark {
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.wordmarkIt { color: #3A86FF; }
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.accountEmail {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ---------- controls ---------- */
+
+.input {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+}
+
+.input::placeholder { color: var(--muted); }
+
+.primary,
+.primaryInline {
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--action-bg);
+  color: var(--action-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary { width: 100%; }
+.primaryInline { flex: none; white-space: nowrap; }
+
+.primary:disabled,
+.primaryInline:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.textButton,
+.deleteConfirm {
+  padding: 2px 4px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.textButton { color: var(--text); }
+.deleteConfirm { color: var(--danger); }
+
+.input:focus-visible,
+.primary:focus-visible,
+.primaryInline:focus-visible,
+.textButton:focus-visible,
+.deleteConfirm:focus-visible,
+.pill:focus-visible,
+.cardTitle a:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* ---------- add, search, filters ---------- */
+
+.addRow {
+  display: flex;
+  gap: 8px;
+}
+
+.search { margin-top: 12px; }
+
+.message {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.messageError { color: var(--danger); }
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.pill {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.pill[aria-pressed="true"] {
+  border-color: var(--action-bg);
+  background: var(--action-bg);
+  color: var(--action-text);
+  font-weight: 600;
+}
+
+.count {
+  margin: 20px 0 10px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.empty {
+  margin-top: 40px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.empty .textButton { margin-top: 8px; }
+
+/* ---------- cards ---------- */
+
+.card {
+  margin-bottom: 10px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--cat);
+  border-radius: 16px;
+  background: var(--card);
+}
+
+.card[data-cat="fashion"] { --cat: #CC0058; }
+.card[data-cat="food"]    { --cat: #007A3D; }
+.card[data-cat="travel"]  { --cat: #1A5FC8; }
+.card[data-cat="tech"]    { --cat: #6B21C8; }
+.card[data-cat="news"]    { --cat: #C85A00; }
+.card[data-cat="health"]  { --cat: #006899; }
+.card[data-cat="home"]    { --cat: #8A5C00; }
+.card[data-cat="other"]   { --cat: #555555; }
+
+@media (prefers-color-scheme: dark) {
+  .card[data-cat="fashion"] { --cat: #FF7058; }
+  .card[data-cat="food"]    { --cat: #48C878; }
+  .card[data-cat="travel"]  { --cat: #58A8E8; }
+  .card[data-cat="tech"]    { --cat: #C878E8; }
+  .card[data-cat="news"]    { --cat: #E8A050; }
+  .card[data-cat="health"]  { --cat: #50B8D8; }
+  .card[data-cat="home"]    { --cat: #88C870; }
+  .card[data-cat="other"]   { --cat: #A0A8B0; }
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.cardCategory {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cat);
+}
+
+.badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--cat);
+  color: var(--cat-ink);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.cardTitle {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.cardTitle a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cardTitle a:hover { text-decoration: underline; }
+
+.cardSummary {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.cardFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.cardHost {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* ---------- sign in ---------- */
+
+.signIn {
+  max-width: 360px;
+  margin: 8vh auto 0;
+}
+
+.signInBrand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.signInWordmark {
+  font-size: 44px;
+  font-weight: 500;
+  letter-spacing: -1px;
+  line-height: 1;
+}
+
+.signInForm { display: block; }
+
+.lead {
+  margin-bottom: 16px;
+  color: var(--muted);
+}
+
+.field {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.fieldLabel {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.hint {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.signInForm .message { margin: 0 0 12px; }
+
+@media (max-width: 480px) {
+  .accountEmail { display: none; }
+}
