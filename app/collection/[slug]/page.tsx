@@ -5,6 +5,30 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+function getPlatformLabel(url: string): string {
+  const domain = url?.toLowerCase() || '';
+  if (domain.includes('instagram.com')) return 'INSTA';
+  if (domain.includes('tiktok.com')) return 'TKTOK';
+  if (domain.includes('youtube.com') || domain.includes('youtu.be')) return 'YT';
+  if (domain.includes('spotify.com')) return 'SPTFY';
+  if (domain.includes('twitter.com') || domain.includes('x.com')) return 'X';
+  if (domain.includes('bbc.co.uk') || domain.includes('bbc.com')) return 'BBC';
+  if (domain.includes('pinterest.com')) return 'PINTR';
+  if (domain.includes('amazon.co.uk') || domain.includes('amazon.com')) return 'AMZN';
+  if (domain.includes('netflix.com')) return 'NETFLX';
+  if (domain.includes('asos.com')) return 'ASOS';
+  if (domain.includes('theguardian.com')) return 'GRDN';
+  if (domain.includes('ikea.com')) return 'IKEA';
+  if (domain.includes('strava.com')) return 'STRVA';
+  if (domain.includes('theverge.com')) return 'VERGE';
+  if (domain.includes('wayfair.com') || domain.includes('wayfair.co.uk')) return 'WAYFR';
+  if (domain.includes('revolve.com')) return 'REVLV';
+  if (domain.includes('nandos.com') || domain.includes('nandos.co.uk')) return 'NNDOS';
+  const domainMatch = url?.match(/(?:https?:\/\/)?(?:www\.)?([^/]+)/);
+  const rawDomain = domainMatch?.[1] || '';
+  return rawDomain.split('.')[0].toUpperCase().slice(0, 5);
+}
+
 export default async function CollectionPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
@@ -32,17 +56,17 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
     );
   }
 
+  // Only the public profile fields are requested here. Email addresses are
+  // never read, and the database no longer allows the public to read them.
   const { data: curator } = await supabase
     .from('users')
-    .select('username, display_name, email')
+    .select('username, display_name')
     .eq('id', collection.user_id)
     .single();
 
   const curatorHandle = curator?.username
     ? `@${curator.username}`
-    : curator?.display_name
-    || curator?.email?.split('@')[0]
-    || 'ShelfIt user';
+    : curator?.display_name || 'ShelfIt user';
 
   const { data: items } = await supabase
     .from('collection_saves')
@@ -67,7 +91,9 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
           margin-bottom: 12px;
         }
         .card:hover { opacity: 0.85; }
-        .card-category { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .card-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .card-category { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .card-platform { font-size: 10px; font-weight: 600; background: #f0f0f0; color: #888; padding: 2px 8px; border-radius: 4px; }
         .card-title { font-size: 15px; font-weight: 500; color: #1a1a1a; margin-bottom: 4px; }
         .card-summary { font-size: 13px; color: #888; line-height: 1.5; }
         .card-url { font-size: 11px; color: #A0B8D0; margin-top: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -81,6 +107,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
           .card-title { color: #f5f5f0; }
           .card-summary { color: #999; }
           .card-category { color: #666; }
+          .card-platform { background: #333; color: #666; }
           .curator { color: #f5f5f0; }
           .meta { color: #666; }
           .footer { border-top-color: #333; }
@@ -111,7 +138,10 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
             if (!link) return null;
             return (
               <a key={item.id} href={link.url} target="_blank" rel="noopener noreferrer" className="card">
-                <div className="card-category">{link.ai_category || 'other'}</div>
+                <div className="card-top-row">
+                  <div className="card-category">{link.ai_category || 'other'}</div>
+                  <div className="card-platform">{getPlatformLabel(link.url)}</div>
+                </div>
                 <div className="card-title">{link.title}</div>
                 {link.ai_summary && <div className="card-summary">{link.ai_summary}</div>}
                 <div className="card-url">{link.url}</div>
