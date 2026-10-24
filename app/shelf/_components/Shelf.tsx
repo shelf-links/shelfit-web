@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import styles from '../shelf.module.css';
 import Logo from './Logo';
@@ -51,6 +51,30 @@ export default function Shelf({ client, userId, email, onSignOut }: Props) {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  // Quietly reload when the person comes back to this tab, so links saved from the
+  // app or the browser extension show up. At most once every 30 seconds, no timer,
+  // and a failed quiet reload is ignored so it never replaces what's on screen.
+  const lastLoaded = useRef(Date.now());
+  useEffect(() => {
+    lastLoaded.current = Date.now();
+  }, [saves]);
+  useEffect(() => {
+    async function onVisible() {
+      if (document.visibilityState !== 'visible') return;
+      if (Date.now() - lastLoaded.current < 30000) return;
+      lastLoaded.current = Date.now();
+      try {
+        const result = await loadSaves(client, userId);
+        setSaves(result.saves);
+        setTruncated(result.truncated);
+      } catch {
+        // keep showing the current list
+      }
+    }
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [client, userId]);
 
   // The "Confirm delete" step times out so a stray click can't delete later.
   useEffect(() => {
