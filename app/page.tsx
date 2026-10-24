@@ -53,6 +53,19 @@ export default function Home() {
         Download on the App Store
       </a>
 
+      <a
+        href="/shelf"
+        style={{
+          color: '#181C14',
+          fontSize: '1rem',
+          fontWeight: 600,
+          marginTop: '-2rem',
+          marginBottom: '3rem',
+        }}
+      >
+        Or open your shelf on the web
+      </a>
+
       <footer
         style={{
           fontSize: '0.85rem',
