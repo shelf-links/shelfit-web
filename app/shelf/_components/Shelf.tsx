@@ -35,6 +35,30 @@ export default function Shelf({ client, userId, email, onSignOut }: Props) {
   const [listNotice, setListNotice] = useState<Notice>(null);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
 
+  // Deleting the whole account (same function the app uses).
+  const [deleteStep, setDeleteStep] = useState<'closed' | 'confirm'>('closed');
+  const [deleteText, setDeleteText] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  async function handleDeleteAccount() {
+    if (deleteText.trim().toUpperCase() !== 'DELETE') return;
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      const { error } = await client.functions.invoke('delete-account');
+      if (error) {
+        setDeleteError("Couldn't delete your account. Try again, or email hello@shelfitapp.com.");
+        setDeleting(false);
+        return;
+      }
+      onSignOut();
+    } catch {
+      setDeleteError("Can't reach ShelfIt. Check your connection and try again.");
+      setDeleting(false);
+    }
+  }
+
   const refresh = useCallback(async () => {
     setLoadError(false);
     try {
@@ -263,6 +287,54 @@ export default function Shelf({ client, userId, email, onSignOut }: Props) {
           <p className={styles.count}>Showing your newest {MAX_SAVES.toLocaleString('en-GB')} links.</p>
         ) : null}
       </section>
+
+      <footer style={{ marginTop: 48, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+        {deleteStep === 'closed' ? (
+          <button type="button" className={styles.textButton} onClick={() => setDeleteStep('confirm')}>
+            Delete my account
+          </button>
+        ) : (
+          <div>
+            <p className={styles.message} style={{ marginTop: 0 }}>
+              This permanently deletes your account and all your saved links. It can't be undone.
+              Type DELETE to confirm.
+            </p>
+            <div className={styles.addRow}>
+              <input
+                className={styles.input}
+                type="text"
+                autoComplete="off"
+                autoCapitalize="characters"
+                spellCheck={false}
+                aria-label="Type DELETE to confirm"
+                placeholder="DELETE"
+                value={deleteText}
+                onChange={(e) => setDeleteText(e.target.value)}
+              />
+              <button
+                type="button"
+                className={styles.primaryInline}
+                style={{ background: 'var(--danger)', color: '#FFFFFF' }}
+                disabled={deleting || deleteText.trim().toUpperCase() !== 'DELETE'}
+                onClick={handleDeleteAccount}
+              >
+                {deleting ? 'Deleting…' : 'Delete account'}
+              </button>
+            </div>
+            {deleteError ? (
+              <p className={`${styles.message} ${styles.messageError}`} role="alert">{deleteError}</p>
+            ) : null}
+            <button
+              type="button"
+              className={styles.textButton}
+              style={{ marginTop: 8 }}
+              onClick={() => { setDeleteStep('closed'); setDeleteText(''); setDeleteError(''); }}
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+      </footer>
     </>
   );
 }
